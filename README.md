@@ -373,11 +373,29 @@ job.json 必须记录：
 
 任务三：
 
-你现在处理的是一个 TikTok小游戏项目。
+你现在处理的是一个 TikTok 小游戏项目
 
-如果本地 ~/下已经有 https://github.com/Notifyman/home-buttons 项目，则直接读取，如果没有则拉取。
+如果本地 `~/home-buttons` 已经存在 `https://github.com/Notifyman/home-buttons` 项目，则直接读取；如果不存在，则先拉取该项目。先完整阅读 `home-buttons` 里的接入说明和参考实现，再开始改当前小游戏。
 
-然后按照这个项目里的要求开始给小游戏桌面增加引导按钮，注意这两个按钮只加到首页，并且不要挡住其他按钮。不要加到首页以外的其他页面。
+任务：给当前小游戏首页增加两个 TikTok 引导按钮：
+1. 添加到桌面引导按钮
+2. 从侧边栏打开引导按钮
+
+要求：
+- 两个按钮只允许出现在首页，不要加到游戏页、结算页、暂停页、设置页或其他页面。
+- 按钮位置不能遮挡首页已有按钮、标题、Logo、关卡入口、设置、排行等可点击元素。
+- 优先沿用当前项目已有首页节点、层级、资源加载和按钮绑定风格。
+- 弹窗确认按钮必须真实可点击，不能只绑定 `"click"`；在 Cocos 里同时绑定 `cc.Node.EventType.TOUCH_END` 和 `"click"`，并加 300ms 防重复触发。
+- 参考 `home-buttons` 和 FishyRescue 的完整 SDK 调用链，不要只实现单一路径：
+  - 桌面：优先 `adUtils.executeAdditionDesktop/isAdditionDesktop`，再兼容 `tt.addShortcut` / 平台封装的 `addShortcut`，成功后尝试领取 shortcut mission reward。
+  - 侧边栏：优先 `adUtils.startEntranceMission`，再兼容 `TTMinis` / `TTMinis.game.startEntranceMission`，再兼容 `executeShowSideBar/showSideBar/executeShowSidebar/showSidebar`，最后 fallback 到 `tt.navigateToScene({ scene: "sidebar" })`。
+  - 查找 SDK 时同时检查全局变量、`window` 上的变量，以及项目已有的平台封装，避免只查一个对象导致 `sidebar sdk unavailable`。
+- 弹窗关闭、确认后要正确销毁弹窗；侧边栏任务成功后隐藏侧边栏按钮并写入本地状态。
+- 不要写单元测试。
+- 不要运行 Taro build，也不要用 Taro 命令验证。
+- 不要主动修改 `build/`、`temp/`、`library/` 等生成产物，除非用户明确要求。优先改源码。
+- 修改后做静态检查：确认只改了首页相关源码、按钮绑定包含 `TOUCH_END`、没有调试残留、没有把按钮挂到首页以外。
+- 如果用户是在已有 `build/bytedance` 目录里测试，提醒源码改动需要由 Cocos 重新编译/出包后才会进入构建产物。
 
 任务四：
 
